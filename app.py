@@ -6,19 +6,27 @@ import os
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 
-# Initialize
 app = Flask(__name__)
 ps = PorterStemmer()
 
-# Load model and vectorizer (safe path for deployment)
+# -----------------------------
+# NLTK setup (Render-safe)
+# -----------------------------
+nltk_data_path = os.path.join(os.path.dirname(__file__), "nltk_data")
+nltk.data.path.append(nltk_data_path)
+
+nltk.download('punkt', download_dir=nltk_data_path)
+nltk.download('stopwords', download_dir=nltk_data_path)
+
+# -----------------------------
+# Load model + vectorizer
+# -----------------------------
 model = pickle.load(open(os.path.join(os.path.dirname(__file__), 'model.pkl'), 'rb'))
 tfidf = pickle.load(open(os.path.join(os.path.dirname(__file__), 'vectorizer.pkl'), 'rb'))
 
-# Download NLTK data (needed for Render)
-nltk.download('punkt')
-nltk.download('stopwords')
-
-# Text preprocessing function
+# -----------------------------
+# Text preprocessing
+# -----------------------------
 def transform_text(text):
     text = text.lower()
     text = nltk.word_tokenize(text)
@@ -43,39 +51,42 @@ def transform_text(text):
 
     return " ".join(y)
 
-
-# Home route
+# -----------------------------
+# Routes
+# -----------------------------
 @app.route('/')
 def home():
     return render_template('index.html')
 
 
-# Prediction route
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['GET', 'POST'])
 def predict():
+    # ✅ If someone opens /predict directly → no crash
+    if request.method == 'GET':
+        return render_template('index.html')
+
     input_sms = request.form.get('message')
 
     # ✅ Handle empty input
     if not input_sms or input_sms.strip() == "":
         return render_template('index.html', prediction=None)
 
-    # 1. preprocess
+    # Preprocess
     transformed_sms = transform_text(input_sms)
 
-    # 2. vectorize (FIXED sparse → dense issue)
+    # Convert sparse → dense (VERY IMPORTANT)
     vector_input = tfidf.transform([transformed_sms]).toarray()
 
-    # 3. predict
+    # Predict
     result = model.predict(vector_input)[0]
 
-    if result == 1:
-        prediction = "Spam"
-    else:
-        prediction = "Not Spam"
+    prediction = "Spam ❌" if result == 1 else "Not Spam ✅"
 
     return render_template('index.html', prediction=prediction)
 
 
+# -----------------------------
 # Run locally
+# -----------------------------
 if __name__ == '__main__':
     app.run(debug=True)
