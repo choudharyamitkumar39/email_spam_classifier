@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SMS Spam Classifier</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea, #5a67d8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .spam {
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .not-spam {
+            background: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📩 SMS Spam Classifier</h2>
+
+    <form action="/predict" method="post">
+        <textarea name="message" placeholder="Type your message here..."></textarea>
+        <br>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+        <div class="result {{ 'spam' if 'Spam' in prediction else 'not-spam' }}">
+            {{ prediction }}
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
