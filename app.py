@@ -9,9 +9,7 @@ from nltk.stem.porter import PorterStemmer
 app = Flask(__name__)
 ps = PorterStemmer()
 
-# -----------------------------
 # NLTK setup (Render-safe)
-# -----------------------------
 nltk_data_path = os.path.join(os.path.dirname(__file__), "nltk_data")
 nltk.data.path.append(nltk_data_path)
 
@@ -19,15 +17,12 @@ nltk.download('punkt', download_dir=nltk_data_path)
 nltk.download('punkt_tab', download_dir=nltk_data_path)
 nltk.download('stopwords', download_dir=nltk_data_path)
 
-# -----------------------------
+
 # Load model + vectorizer
-# -----------------------------
 model = pickle.load(open(os.path.join(os.path.dirname(__file__), 'model.pkl'), 'rb'))
 tfidf = pickle.load(open(os.path.join(os.path.dirname(__file__), 'vectorizer.pkl'), 'rb'))
 
-# -----------------------------
 # Text preprocessing
-# -----------------------------
 def transform_text(text):
     text = text.lower()
     text = nltk.word_tokenize(text)
@@ -52,9 +47,7 @@ def transform_text(text):
 
     return " ".join(y)
 
-# -----------------------------
 # Routes
-# -----------------------------
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -86,8 +79,6 @@ def predict():
     return render_template('index.html', prediction=prediction)
 
 
-# -----------------------------
 # Run locally
-# -----------------------------
 if __name__ == '__main__':
     app.run(debug=True)
